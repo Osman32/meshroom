@@ -119,11 +119,11 @@ def mvsPipeline(graph, sfm=None):
     if sfm and not sfm.nodeType == "StructureFromMotion":
         raise ValueError("Invalid node type. Expected StructureFromMotion, got {}.".format(sfm.nodeType))
 
-    prepareDenseScene = graph.addNewNode('PrepareDenseScene',
+    undistortImages = graph.addNewNode('UndistortImages',
                                          input=sfm.output if sfm else "")
     cameraConnection = graph.addNewNode('CameraConnection',
-                                        input=prepareDenseScene.input,
-                                        imagesFolder=prepareDenseScene.output)
+                                        input=undistortImages.input,
+                                        imagesFolder=undistortImages.output)
     depthMap = graph.addNewNode('DepthMap',
                                 input=cameraConnection.input,
                                 cameraPairsMatrixFolder=cameraConnection.output,
@@ -146,7 +146,7 @@ def mvsPipeline(graph, sfm=None):
                                  inputMesh=meshFiltering.output)
 
     return [
-        prepareDenseScene,
+        undistortImages,
         cameraConnection,
         depthMap,
         depthMapFilter,
